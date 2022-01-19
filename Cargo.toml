@@ -1,0 +1,13 @@
+[package]
+name = "gltriangle"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+glfw = "0.43.0"
+gl = "0.10.0"
+image = "0.19.0"
+cgmath = "0.16.1"
+tobj = "0.1.6"
