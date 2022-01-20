@@ -32,6 +32,11 @@ use cgmath::prelude::*;
 const SCR_WIDTH: u32 = 800;
 const SCR_HEIGHT: u32 = 600;
 
+const MODEL_PATH: &str = "resources/objects/redcube/cube.obj";
+// const MODEL_PATH: &str = "resources/objects/statue/statue.obj";
+// const MODEL_PATH: &str = "resources/objects/42/42.obj";
+// const MODEL_PATH: &str = "resources/objects/teapot/teapot.obj";
+
 fn main() {
 
     let (mut glfw, mut window, events) = 
@@ -49,7 +54,7 @@ fn main() {
             "src/shaders/shader.vs",
             "src/shaders/shader.fs");
 
-        let (vertices, indices) = parse_obj::load_model("resources/objects/teapot/teapot2.obj");
+        let (vertices, indices) = parse_obj::load_model(MODEL_PATH);
         // println!("{:?}", ourModel);
 
 
@@ -138,7 +143,7 @@ fn main() {
             // create transformations
             // NOTE: cgmath requires axis vectors to be normalized!
             let model: Matrix4<f32> = Matrix4::identity();
-            let view: Matrix4<f32> = Matrix4::from_translation(vec3(0., 0.0, -10.));
+            let view: Matrix4<f32> = Matrix4::from_translation(vec3(0., 0.0, -5.));
             let projection: Matrix4<f32> = perspective(Deg(45.0), SCR_WIDTH as f32 / SCR_HEIGHT as f32, 0.1, 100.0);
             // retrieve the matrix uniform locations
             let model_loc = gl::GetUniformLocation(our_shader.id, c_str!("model").as_ptr());
