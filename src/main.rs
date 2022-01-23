@@ -26,8 +26,8 @@ mod window;
 
 mod matrix;
 use matrix::{Matrix4, Vector4};
-use cgmath::{prelude::*, Deg};
-use cgmath;
+// use cgmath::{prelude::*, Deg};
+// use cgmath;
 
 
 // settings
@@ -35,10 +35,10 @@ const SCR_WIDTH: u32 = 800;
 const SCR_HEIGHT: u32 = 600;
 
 // const MODEL_PATH: &str = "resources/objects/redcube/cube.obj";
-// const MODEL_PATH: &str = "resources/objects/redcube/cube2.obj";
+const MODEL_PATH: &str = "resources/objects/redcube/cube2.obj";
 // const MODEL_PATH: &str = "resources/objects/statue/statue.obj";
 // const MODEL_PATH: &str = "resources/objects/42/42.obj";
-const MODEL_PATH: &str = "resources/objects/teapot/teapot2.obj";
+// const MODEL_PATH: &str = "resources/objects/teapot/teapot2.obj";
 
 fn main() {
 
@@ -62,31 +62,47 @@ fn main() {
             
         let model = model::generate_model_matrix(&vertices);
 
-        println!("MODEL {:?}", model);
+        // println!("MODEL {:?}", model);
 
         let (mut vbo, mut vao, mut ebo) = (0, 0, 0);
+        // vao: vertex array object
         gl::GenVertexArrays(1, &mut vao);
+        // vbo: vertex buffer (coordinates)
         gl::GenBuffers(1, &mut vbo);
+        // element buffer (faces)
         gl::GenBuffers(1, &mut ebo);
 
         gl::BindVertexArray(vao);
 
         gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
-        gl::BufferData(gl::ARRAY_BUFFER,
-                       (vertices.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
-                       &vertices[0] as *const f32 as *const c_void,
-                       gl::STATIC_DRAW);
+        gl::BufferData(
+            gl::ARRAY_BUFFER,
+            (vertices.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
+            &vertices[0] as *const f32 as *const c_void,
+            gl::STATIC_DRAW
+        );
 
         gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo);
-        gl::BufferData(gl::ELEMENT_ARRAY_BUFFER,
-                        (indices.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
-                        &indices[0] as *const u32 as *const c_void,
-                        gl::STATIC_DRAW);
-                        
-                        let stride = 3 * mem::size_of::<GLfloat>() as GLsizei;
-                        // position attribute
-        gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, stride, ptr::null());
+        gl::BufferData(
+            gl::ELEMENT_ARRAY_BUFFER,
+            (indices.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
+            &indices[0] as *const u32 as *const c_void,    
+            gl::STATIC_DRAW
+        );
+        
+        // stride is the "jump" between vertices in the vbo
+        let stride = 3 * mem::size_of::<GLfloat>() as GLsizei;
+        // position attribute
+        gl::VertexAttribPointer(
+            0, 
+            3, 
+            gl::FLOAT, 
+            gl::FALSE, 
+            stride, 
+            ptr::null()
+        );
         gl::EnableVertexAttribArray(0);
+
         // texture coord attribute
         // gl::VertexAttribPointer(1, 2, gl::FLOAT, gl::FALSE, stride, (3 * mem::size_of::<GLfloat>()) as *const c_void);
         // gl::EnableVertexAttribArray(1);
@@ -97,8 +113,8 @@ fn main() {
         // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
         // -------------------------------------------------------------------------------------------
         our_shader.use_program();
-        our_shader.setInt(c_str!("texture1"), 0);
-        our_shader.setInt(c_str!("texture2"), 1);
+        our_shader.set_int(c_str!("texture1"), 0);
+        our_shader.set_int(c_str!("texture2"), 1);
 
         (our_shader, vbo, vao, texture1, texture2, indices, model)
     };
@@ -158,9 +174,9 @@ fn main() {
             let angle = 2.0 as f32 * glfw.get_time() as f32;
             let rotation = model * Matrix4::from_angle_y(angle);
 
-            our_shader.setMat4(c_str!("model"), &rotation);
-            our_shader.setMat4(c_str!("projection"), &projection);
-            our_shader.setMat4(c_str!("view"), &view);
+            our_shader.set_mat4(c_str!("model"), &rotation);
+            our_shader.set_mat4(c_str!("projection"), &projection);
+            our_shader.set_mat4(c_str!("view"), &view);
 
             gl::DrawElements(gl::TRIANGLES, indices.len() as i32, gl::UNSIGNED_INT, ptr::null());
         }
@@ -179,7 +195,6 @@ fn main() {
     }
 }
 
-// NOTE: not the same version as in common.rs!
 fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::WindowEvent)>) {
     for (_, event) in glfw::flush_messages(events) {
         match event {

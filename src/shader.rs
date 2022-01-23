@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::ffi::{CString, CStr};
 use std::fs::File;
 use std::io::Read;
@@ -71,27 +73,27 @@ impl Shader {
 
     /// utility uniform functions
     /// ------------------------------------------------------------------------
-    pub unsafe fn setBool(&self, name: &CStr, value: bool) {
+    pub unsafe fn set_bool(&self, name: &CStr, value: bool) {
         gl::Uniform1i(gl::GetUniformLocation(self.id, name.as_ptr()), value as i32);
     }
     /// ------------------------------------------------------------------------
-    pub unsafe fn setInt(&self, name: &CStr, value: i32) {
+    pub unsafe fn set_int(&self, name: &CStr, value: i32) {
         gl::Uniform1i(gl::GetUniformLocation(self.id, name.as_ptr()), value);
     }
     /// ------------------------------------------------------------------------
-    pub unsafe fn setFloat(&self, name: &CStr, value: f32) {
+    pub unsafe fn set_float(&self, name: &CStr, value: f32) {
         gl::Uniform1f(gl::GetUniformLocation(self.id, name.as_ptr()), value);
     }
     /// ------------------------------------------------------------------------
-    // pub unsafe fn setVector4(&self, name: &CStr, value: &Vector4) {
-    //     gl::Uniform3fv(gl::GetUniformLocation(self.id, name.as_ptr()), 1, value.as_ptr());
-    // }
+    pub unsafe fn set_vector4(&self, name: &CStr, value: &Vector4) {
+        gl::Uniform3fv(gl::GetUniformLocation(self.id, name.as_ptr()), 1, value.as_ptr());
+    }
     /// ------------------------------------------------------------------------
-    pub unsafe fn setVec3(&self, name: &CStr, x: f32, y: f32, z: f32) {
+    pub unsafe fn set_vec3(&self, name: &CStr, x: f32, y: f32, z: f32) {
         gl::Uniform3f(gl::GetUniformLocation(self.id, name.as_ptr()), x, y, z);
     }
     /// ------------------------------------------------------------------------
-    pub unsafe fn setMat4(&self, name: &CStr, mat: &Matrix4) {
+    pub unsafe fn set_mat4(&self, name: &CStr, mat: &Matrix4) {
         gl::UniformMatrix4fv(gl::GetUniformLocation(self.id, name.as_ptr()), 1, gl::FALSE, mat.as_ptr());
     }
 
@@ -99,8 +101,8 @@ impl Shader {
     /// ------------------------------------------------------------------------
     unsafe fn check_compile_errors(&self, shader: u32, type_: &str) {
         let mut success = gl::FALSE as GLint;
-        let mut infoLog = vec!(0; 1024);
-        infoLog.set_len(1024 - 1); // subtract 1 to skip the trailing null character
+        let mut info_log = vec!(0; 1024);
+        info_log.set_len(1024 - 1); // subtract 1 to skip the trailing null character
 
         // check shader compilation
         if type_ != "PROGRAM" {
@@ -111,12 +113,12 @@ impl Shader {
                     shader, 
                     1024, 
                     ptr::null_mut(), 
-                    infoLog.as_mut_ptr() as *mut GLchar
+                    info_log.as_mut_ptr() as *mut GLchar
                 );
                 println!(
                     "ERROR::SHADER_COMPILATION_ERROR of type: {}\n{}\n",
                     type_,
-                    str::from_utf8(&infoLog).unwrap()
+                    str::from_utf8(&info_log).unwrap()
                 );
                 // TODO: manage error (?)
                 panic!();
@@ -129,12 +131,12 @@ impl Shader {
                     shader, 
                     1024, 
                     ptr::null_mut(), 
-                    infoLog.as_mut_ptr() as *mut GLchar
+                    info_log.as_mut_ptr() as *mut GLchar
                 );
                 println!(
                     "ERROR::PROGRAM_LINKING_ERROR of type: {}\n{}\n",
                     type_,
-                    str::from_utf8(&infoLog).unwrap()
+                    str::from_utf8(&info_log).unwrap()
                 );
                 // TODO: manage error (?)
                 panic!();

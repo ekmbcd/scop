@@ -70,6 +70,6 @@ fn to_triangles(polygon: Vec<u32>) -> Vec<u32> {
 
         len -= 1;
     }
-    println!("{:?} - {:?}", polygon, out);
+    // println!("{:?} - {:?}", polygon, out);
     out
 }

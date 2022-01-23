@@ -32,6 +32,10 @@ impl Vector4 {
     fn w(&self) -> f32 {
         self.array[3]
     }
+
+    pub fn as_ptr(&self) -> *const f32 {
+        self.array.as_ptr()
+    }
 }
 
 impl ops::Mul<Vector4> for Vector4 {
