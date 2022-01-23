@@ -22,6 +22,7 @@ pub struct Matrix4 {
     pub z: Vector4,
     /// The fourth column of the matrix.
     pub w: Vector4,
+    arr: [f32; 16]
 }
 
 impl Vector4 {
@@ -93,11 +94,12 @@ impl Matrix4 {
             y: Vector4::from_slice(&v[4..8]), 
             z: Vector4::from_slice(&v[8..12]), 
             w: Vector4::from_slice(&v[12..16]),
+            arr: [0.0; 16]
         }
     }
 
     pub fn new(x: Vector4, y: Vector4, z: Vector4, w: Vector4) -> Self {
-        Self { x, y, z, w }
+        Self { x, y, z, w, arr: [0.0; 16] }
     }
 
     pub fn identity() -> Self {
@@ -106,6 +108,7 @@ impl Matrix4 {
             y: Vector4::new(0.0, 1.0, 0.0, 0.0),
             z: Vector4::new(0.0, 0.0, 1.0, 0.0),
             w: Vector4::new(0.0, 0.0, 0.0, 1.0),
+            arr: [0.0; 16]
         }
     }
 
@@ -146,10 +149,10 @@ impl Matrix4 {
     }
 
     pub fn as_ptr(&self) -> *const f32 {
-        self.as_arr().as_ptr()
+        self.arr.as_ptr()
     }
 
-    pub fn as_arr(&self) -> [f32; 16] {
+    pub fn to_arr(&self) -> [f32; 16] {
         let arr = [
             self.x.x, self.x.y, self.x.z, self.x.w,
             self.y.x, self.y.y, self.y.z, self.y.w,
@@ -166,6 +169,7 @@ impl Matrix4 {
             y: Vector4::new(0.0, scale, 0.0, 0.0),
             z: Vector4::new(0.0, 0.0, scale, 0.0),
             w: Vector4::new(0.0, 0.0, 0.0, 1.0),
+            arr: [0.0; 16]
         }
 
     }
@@ -176,6 +180,7 @@ impl Matrix4 {
             y: Vector4::new(0.0, 1.0, 0.0, 0.0),
             z: Vector4::new(0.0, 0.0, 1.0, 0.0),
             w: Vector4::new(x, y, z, 1.0),
+            arr: [0.0; 16]
         }
 
     }

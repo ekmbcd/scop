@@ -1,3 +1,4 @@
+/*
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 
@@ -117,3 +118,4 @@ impl Mesh {
         gl::BindVertexArray(0);
     }
 }
+*/

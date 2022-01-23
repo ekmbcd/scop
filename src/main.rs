@@ -11,6 +11,7 @@ use std::os::raw::c_void;
 use std::ffi::CStr;
 
 mod macros;
+mod math;
 
 mod mesh;
 mod model;
@@ -23,8 +24,8 @@ mod texture;
 
 mod window;
 
-mod math;
-use math::{Matrix4, Vector4};
+mod matrix;
+use matrix::{Matrix4, Vector4};
 use cgmath::{prelude::*, Deg};
 use cgmath;
 
@@ -33,11 +34,11 @@ use cgmath;
 const SCR_WIDTH: u32 = 800;
 const SCR_HEIGHT: u32 = 600;
 
-const MODEL_PATH: &str = "resources/objects/redcube/cube.obj";
+// const MODEL_PATH: &str = "resources/objects/redcube/cube.obj";
 // const MODEL_PATH: &str = "resources/objects/redcube/cube2.obj";
 // const MODEL_PATH: &str = "resources/objects/statue/statue.obj";
 // const MODEL_PATH: &str = "resources/objects/42/42.obj";
-// const MODEL_PATH: &str = "resources/objects/teapot/teapot2.obj";
+const MODEL_PATH: &str = "resources/objects/teapot/teapot2.obj";
 
 fn main() {
 
@@ -60,6 +61,8 @@ fn main() {
         // println!("{:?}", ourModel);
             
         let model = model::generate_model_matrix(&vertices);
+
+        println!("MODEL {:?}", model);
 
         let (mut vbo, mut vao, mut ebo) = (0, 0, 0);
         gl::GenVertexArrays(1, &mut vao);
@@ -141,39 +144,24 @@ fn main() {
             gl::BindTexture(gl::TEXTURE_2D, texture2);
             
             // activate shader
-            our_shader.use_program();
+            // our_shader.use_program();
             
             // create transformations
-            // NOTE: cgmath requires axis vectors to be normalized!
-            let view2: cgmath::Matrix4<f32> = cgmath::Matrix4::from_translation(cgmath::vec3(0., 0.0, -5.));
             let view = Matrix4::from_translation(0.0, 0.0, -5.);
-            // println!("view mine {:?}", view.as_arr());
-            // println!("view cg {:?}", view2);
-            // println!("-----");
 
-            // let projection: Matrix4<f32> = perspective(Deg(45.0), SCR_WIDTH as f32 / SCR_HEIGHT as f32, 0.1, 100.0);
             let projection = Matrix4::perspective(45.0, SCR_WIDTH as f32 / SCR_HEIGHT as f32, 0.1, 100.0);
-            let projection2 = cgmath::perspective(Deg(45.0), SCR_WIDTH as f32 / SCR_HEIGHT as f32, 0.1, 100.0);
-            // retrieve the matrix uniform locations
-            let model_loc = gl::GetUniformLocation(our_shader.id, c_str!("model").as_ptr());
-            let view_loc = gl::GetUniformLocation(our_shader.id, c_str!("view").as_ptr());
-            // pass them to the shaders (3 different ways)
-            gl::UniformMatrix4fv(model_loc, 1, gl::FALSE, model.as_ptr());
-            // gl::UniformMatrix4fv(view_loc, 1, gl::FALSE, &view[0][0]);
             // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
-            our_shader.setMat4(c_str!("projection"), &projection);
-            our_shader.setMat4(c_str!("view"), &view);
-
+            
             // render box
             gl::BindVertexArray(vao);
 
-            let angle = 40.0 as f32 * glfw.get_time() as f32;
-            let rotation = Matrix4::from_angle_y(angle) * model;
-            // let rotation = Matrix4::from_axis_angle(vec3(0.0, 1.0, 0.0), Deg(angle)) * model;
-            // let model = Matrix4::from_axis_angle(vec3(0.0, 1.0, 0.0), Deg(angle));
-            our_shader.setMat4(c_str!("model"), &rotation);
+            let angle = 2.0 as f32 * glfw.get_time() as f32;
+            let rotation = model * Matrix4::from_angle_y(angle);
 
-            // gl::DrawArrays(gl::TRIANGLES, 0, 72);
+            our_shader.setMat4(c_str!("model"), &rotation);
+            our_shader.setMat4(c_str!("projection"), &projection);
+            our_shader.setMat4(c_str!("view"), &view);
+
             gl::DrawElements(gl::TRIANGLES, indices.len() as i32, gl::UNSIGNED_INT, ptr::null());
         }
 

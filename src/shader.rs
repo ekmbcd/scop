@@ -7,7 +7,7 @@ use std::str;
 use gl;
 use gl::types::*;
 
-use crate::math::{Matrix4, Vector4};
+use crate::matrix::{Matrix4, Vector4};
 // use cgmath::prelude::*;
 
 pub struct Shader {

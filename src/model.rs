@@ -1,5 +1,4 @@
-// use cgmath::Matrix4;
-use crate::math::Matrix4;
+use crate::matrix::Matrix4;
 
 pub fn generate_model_matrix(vertices: &Vec<f32>) -> Matrix4{
     let mut i = 0;
@@ -42,20 +41,14 @@ pub fn generate_model_matrix(vertices: &Vec<f32>) -> Matrix4{
         .max_by(|x, y| x.abs().partial_cmp(&y.abs()).unwrap())
         .expect("fail in abs_max");
 
+    // used to scale the object
     let scale_matrix = Matrix4::from_scale(1.0 / (*abs_max));
-    // let myscale_matrix = math::Matrix4::from_scale(1.0 / (*abs_max));
-    
-    println!("CG trans {:?}", scale_matrix);
-    // println!("MY trans {:?}", myscale_matrix);
+
     // used to center the object
-    // let translation = cgmath::Vector3::new(-(max_x + min_x) / 2.0, -(max_y + min_y) / 2.0, -(max_z + min_z) / 2.0);
-    
-    // let translation_matrix = Matrix4::from_translation(translation);
     let translation_matrix = Matrix4::from_translation(
         -(max_x + min_x) / 2.0, 
         -(max_y + min_y) / 2.0, 
         -(max_z + min_z) / 2.0
     );
-
-    scale_matrix * translation_matrix
+    translation_matrix * scale_matrix
 }
