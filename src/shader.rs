@@ -7,8 +7,8 @@ use std::str;
 use gl;
 use gl::types::*;
 
-use cgmath::{Matrix, Matrix4, Vector3};
-use cgmath::prelude::*;
+use crate::math::{Matrix4, Vector4};
+// use cgmath::prelude::*;
 
 pub struct Shader {
     pub id: u32,
@@ -83,15 +83,15 @@ impl Shader {
         gl::Uniform1f(gl::GetUniformLocation(self.id, name.as_ptr()), value);
     }
     /// ------------------------------------------------------------------------
-    pub unsafe fn setVector3(&self, name: &CStr, value: &Vector3<f32>) {
-        gl::Uniform3fv(gl::GetUniformLocation(self.id, name.as_ptr()), 1, value.as_ptr());
-    }
+    // pub unsafe fn setVector4(&self, name: &CStr, value: &Vector4) {
+    //     gl::Uniform3fv(gl::GetUniformLocation(self.id, name.as_ptr()), 1, value.as_ptr());
+    // }
     /// ------------------------------------------------------------------------
     pub unsafe fn setVec3(&self, name: &CStr, x: f32, y: f32, z: f32) {
         gl::Uniform3f(gl::GetUniformLocation(self.id, name.as_ptr()), x, y, z);
     }
     /// ------------------------------------------------------------------------
-    pub unsafe fn setMat4(&self, name: &CStr, mat: &Matrix4<f32>) {
+    pub unsafe fn setMat4(&self, name: &CStr, mat: &Matrix4) {
         gl::UniformMatrix4fv(gl::GetUniformLocation(self.id, name.as_ptr()), 1, gl::FALSE, mat.as_ptr());
     }
 

@@ -145,16 +145,9 @@ impl Matrix4 {
         Vector4::new(self.x.w, self.y.w, self.z.w, self.w.w)
     }
 
-    // pub fn as_ptr(&self) -> *const f32 {
-    //     let arr = [
-    //         self.x.x, self.x.y, self.x.z, self.x.w,
-    //         self.y.x, self.y.y, self.y.z, self.y.w,
-    //         self.z.x, self.z.y, self.z.z, self.z.w,
-    //         self.w.x, self.w.y, self.w.z, self.w.w,
-    //     ];
-    //     // println!("{:?}", arr);
-    //     arr.as_ptr()
-    // }
+    pub fn as_ptr(&self) -> *const f32 {
+        self.as_arr().as_ptr()
+    }
 
     pub fn as_arr(&self) -> [f32; 16] {
         let arr = [
@@ -185,5 +178,22 @@ impl Matrix4 {
             w: Vector4::new(x, y, z, 1.0),
         }
 
+    }
+
+    pub fn perspective(
+        fovy: f32, // field of view (degrees) in the y direction
+        aspect: f32, // aspect ratio (width/height)
+        near: f32, // distance of the near clipping plane
+        far: f32 // distance of the far clipping plane
+    ) -> Self {
+        let fovy = fovy * PI / 180.0;
+        let f = 1.0 / (fovy / 2.0).tan();
+
+        Self::from_arr([
+            f / aspect, 0.0, 0.0, 0.0,
+            0.0, f, 0.0, 0.0,
+            0.0, 0.0, (far + near) / (near - far), -1.0,  // ERROR???
+            0.0, 0.0, 2.0 * far * near / (near - far), 0.0
+       ])
     }
 }
