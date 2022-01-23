@@ -166,4 +166,24 @@ impl Matrix4 {
         // println!("{:?}", arr);
         arr
     }
+
+    pub fn from_scale(scale: f32) -> Self {
+        Self {
+            x: Vector4::new(scale, 0.0, 0.0, 0.0),
+            y: Vector4::new(0.0, scale, 0.0, 0.0),
+            z: Vector4::new(0.0, 0.0, scale, 0.0),
+            w: Vector4::new(0.0, 0.0, 0.0, 1.0),
+        }
+
+    }
+
+    pub fn from_translation(x: f32, y: f32, z: f32) -> Self {
+        Self {
+            x: Vector4::new(1.0, 0.0, 0.0, 0.0),
+            y: Vector4::new(0.0, 1.0, 0.0, 0.0),
+            z: Vector4::new(0.0, 0.0, 1.0, 0.0),
+            w: Vector4::new(x, y, z, 1.0),
+        }
+
+    }
 }

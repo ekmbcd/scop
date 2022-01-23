@@ -1,74 +1,61 @@
-#![allow(non_snake_case)]
-#![allow(dead_code)]
+// use cgmath::Matrix4;
+use crate::math::Matrix4;
 
-use std::os::raw::c_void;
-use std::path::Path;
+pub fn generate_model_matrix(vertices: &Vec<f32>) -> Matrix4{
+    let mut i = 0;
+    let (mut max_x, mut max_y, mut max_z) = (f32::MIN, f32::MIN, f32::MIN);
+    let (mut min_x, mut min_y, mut min_z) = (f32::MAX, f32::MAX, f32::MAX);
 
-use cgmath::{vec2, vec3};
-use gl;
-use image;
-use image::DynamicImage::*;
-use image::GenericImage;
-use tobj;
-
-use crate::mesh;
-use mesh::{ Mesh, Texture, Vertex };
-use crate::shader;
-use shader::Shader;
-
-#[derive(Debug)]
-#[derive(Default)]
-pub struct Model {
-    /*  Model Data */
-    pub meshes: Vec<Mesh>,
-    pub textures_loaded: Vec<Texture>,   // stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-    directory: String,
-}
-
-impl Model {
-    /// constructor, expects a filepath to a 3D model.
-    pub fn new(path: &str) -> Model {
-        let mut model = Model::default();
-        model.loadModel(path);
-        model
-    }
-
-    pub fn Draw(&self, shader: &Shader) {
-        for mesh in &self.meshes {
-            unsafe { mesh.Draw(shader); }
+    while i < vertices.len() {
+        // X
+        if vertices[i] > max_x {
+            max_x = vertices[i];
         }
-    }
-
-    // loads a model from file and stores the resulting meshes in the meshes vector.
-    fn loadModel(&mut self, path: &str) {
-        let path = Path::new(path);
-
-        // retrieve the directory path of the filepath
-        self.directory = path.parent().unwrap_or_else(|| Path::new("")).to_str().unwrap().into();
-        let obj = tobj::load_obj(path);
-
-        
-        let (models, materials) = obj.unwrap();
-        for model in models {
-          let mesh = &model.mesh;
-          let num_vertices = mesh.positions.len() / 3;
-          
-          // data to fill
-          let mut vertices: Vec<Vertex> = Vec::with_capacity(num_vertices);
-          let indices: Vec<u32> = mesh.indices.clone();
-          
-          let (p, n, t) = (&mesh.positions, &mesh.normals, &mesh.texcoords);
-          println!("hello {:?}", t);
-          for i in 0..num_vertices {
-                vertices.push(Vertex {
-                    Position:  vec3(p[i*3], p[i*3+1], p[i*3+2])
-                })
-            }
-
-            self.meshes.push(Mesh::new(vertices, indices, Texture {id: 0, type_: "t".to_string(), path: "r".to_string()}));
+        if vertices[i] < min_x {
+            min_x = vertices[i];
+        }
+        // Y
+        if vertices[i + 1] > max_y {
+            max_y = vertices[i + 1];
+        }
+        if vertices[i + 1] < min_y {
+            min_y = vertices[i + 1];
+        }
+        // Z
+        if vertices[i + 2] > max_z {
+            max_z = vertices[i + 2];
+        }
+        if vertices[i + 2] < min_z {
+            min_z = vertices[i + 2];
         }
 
+        i+=3;
     }
 
-}
+    let mut scale_vec = Vec::new();
+    scale_vec.push((max_x - min_x) / 2.0);
+    scale_vec.push((max_y - min_y) / 2.0);
+    scale_vec.push((max_z - min_z) / 2.0);
 
+    // find the longest side of the object
+    let abs_max = scale_vec.iter()
+        .max_by(|x, y| x.abs().partial_cmp(&y.abs()).unwrap())
+        .expect("fail in abs_max");
+
+    let scale_matrix = Matrix4::from_scale(1.0 / (*abs_max));
+    // let myscale_matrix = math::Matrix4::from_scale(1.0 / (*abs_max));
+    
+    println!("CG trans {:?}", scale_matrix);
+    // println!("MY trans {:?}", myscale_matrix);
+    // used to center the object
+    // let translation = cgmath::Vector3::new(-(max_x + min_x) / 2.0, -(max_y + min_y) / 2.0, -(max_z + min_z) / 2.0);
+    
+    // let translation_matrix = Matrix4::from_translation(translation);
+    let translation_matrix = Matrix4::from_translation(
+        -(max_x + min_x) / 2.0, 
+        -(max_y + min_y) / 2.0, 
+        -(max_z + min_z) / 2.0
+    );
+
+    scale_matrix * translation_matrix
+}

@@ -1,7 +1,5 @@
 use std::{path::Path, io, fs::File};
-
-use cgmath::Vector3;
-
+use cgmath::Matrix4;
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
 where P: AsRef<Path>, {
@@ -92,7 +90,8 @@ pub unsafe fn load_model(path: &str) -> (Vec<f32>, Vec<u32>) {
     //     self.meshes.push(Mesh::new(vertices, indices, Texture {id: 0, type_: "t".to_string(), path: "r".to_string()}));
     // }
     // (mesh.positions.clone(), mesh.indices.clone())
-    let mypos = scale_vertices(&mypos);
+    let scale_matrix = scale_vertices(&mypos);
+    println!("{:?}", scale_matrix);
     (mypos, my_indices)
 }
 
@@ -146,15 +145,20 @@ fn center_vertices(vertices: &Vec<f32>) -> Vec<f32>{
         i+=3;
     }
 
-    *vertices // transform into a matrix operation?
+    let mut translation = Vec::new();
+    translation.push((max_x - min_x) / 2.0);
+    translation.push((max_y - min_y) / 2.0);
+    translation.push((max_z - min_z) / 2.0);
+    
+    translation
 }
 
-fn scale_vertices(vertices: &Vec<f32>) -> Vec<f32>{
+fn scale_vertices(vertices: &Vec<f32>) -> Matrix4<f32>{
     let abs_max = vertices.iter()
         .max_by(|x, y| x.abs().partial_cmp(&y.abs()).unwrap())
         .expect("fail in abs_max");
 
     println!("MAX = {}", abs_max);
     
-    vertices.iter().map(|x| *x / abs_max).collect()
+    Matrix4::from_scale(1.0 / (*abs_max))
 }
