@@ -35,10 +35,10 @@ const SCR_WIDTH: u32 = 800;
 const SCR_HEIGHT: u32 = 600;
 
 // const MODEL_PATH: &str = "resources/objects/redcube/cube.obj";
-const MODEL_PATH: &str = "resources/objects/redcube/cube2.obj";
-// const MODEL_PATH: &str = "resources/objects/statue/statue.obj";
+// const MODEL_PATH: &str = "resources/objects/redcube/cube2.obj";
+const MODEL_PATH: &str = "resources/objects/statue/statue.obj";
 // const MODEL_PATH: &str = "resources/objects/42/42.obj";
-// const MODEL_PATH: &str = "resources/objects/teapot/teapot2.obj";
+// const MODEL_PATH: &str = "resources/objects/teapot/teapot.obj";
 
 fn main() {
 
@@ -46,7 +46,7 @@ fn main() {
         window::create_window(SCR_WIDTH, SCR_HEIGHT);
     
 
-    let (our_shader, vbo, vao, texture1, texture2, indices, model) = unsafe {
+    let (our_shader, vbo, vao, texture, indices, model) = unsafe {
         // configure global opengl state
         // -----------------------------
         gl::Enable(gl::DEPTH_TEST);
@@ -107,16 +107,17 @@ fn main() {
         // gl::VertexAttribPointer(1, 2, gl::FLOAT, gl::FALSE, stride, (3 * mem::size_of::<GLfloat>()) as *const c_void);
         // gl::EnableVertexAttribArray(1);
         
-        let texture1 = texture::load_texture("resources/textures/container.jpg");
-        let texture2 = texture::load_texture("resources/textures/awesomeface.png");
+        let texture = texture::load_texture("resources/textures/kittens.jpg");
         
         // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
         // -------------------------------------------------------------------------------------------
         our_shader.use_program();
         our_shader.set_int(c_str!("texture1"), 0);
-        our_shader.set_int(c_str!("texture2"), 1);
 
-        (our_shader, vbo, vao, texture1, texture2, indices, model)
+        gl::Enable(gl::CULL_FACE);
+        gl::CullFace(gl::BACK);  
+
+        (our_shader, vbo, vao, texture, indices, model)
     };
 
     // needed for fps conter
@@ -155,9 +156,7 @@ fn main() {
 
             // bind textures on corresponding texture units
             gl::ActiveTexture(gl::TEXTURE0);
-            gl::BindTexture(gl::TEXTURE_2D, texture1);
-            gl::ActiveTexture(gl::TEXTURE1);
-            gl::BindTexture(gl::TEXTURE_2D, texture2);
+            gl::BindTexture(gl::TEXTURE_2D, texture);
             
             // activate shader
             // our_shader.use_program();

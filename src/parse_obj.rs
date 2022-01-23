@@ -42,10 +42,13 @@ pub unsafe fn load_model(path: &str) -> (Vec<f32>, Vec<u32>) {
                     obj_string.starts_with("usemtl ") ||
                     obj_string.starts_with("s ") ||
                     obj_string.starts_with("mtllib ") ||
-                    obj_string.starts_with("o ") {
+                    obj_string.starts_with("o ") ||
+                    obj_string.starts_with("g ") ||
+                    obj_string.is_empty() {
                         // skip
                 } else {
-                    panic!("Wrong obj file");
+                    println!(">> ({})", obj_string);
+                    // panic!("Wrong obj file");
                 }
 
             }
