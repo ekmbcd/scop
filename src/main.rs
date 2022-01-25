@@ -1,10 +1,9 @@
 extern crate glfw;
-use self::glfw::{Context, Key, Action};
+use self::glfw::Context;
 
 extern crate gl;
 use self::gl::types::*;
 
-use std::sync::mpsc::Receiver;
 use std::ptr;
 use std::mem;
 use std::os::raw::c_void;
@@ -36,8 +35,8 @@ const SCR_HEIGHT: u32 = 600;
 
 // const MODEL_PATH: &str = "resources/objects/redcube/cube.obj";
 // const MODEL_PATH: &str = "resources/objects/redcube/cube2.obj";
-const MODEL_PATH: &str = "resources/objects/statue/statue.obj";
-// const MODEL_PATH: &str = "resources/objects/42/42.obj";
+// const MODEL_PATH: &str = "resources/objects/statue/statue.obj";
+const MODEL_PATH: &str = "resources/objects/42/42.obj";
 // const MODEL_PATH: &str = "resources/objects/teapot/teapot.obj";
 
 fn main() {
@@ -107,7 +106,7 @@ fn main() {
         // gl::VertexAttribPointer(1, 2, gl::FLOAT, gl::FALSE, stride, (3 * mem::size_of::<GLfloat>()) as *const c_void);
         // gl::EnableVertexAttribArray(1);
         
-        let texture = texture::load_texture("resources/textures/kittens.jpg");
+        let texture = texture::load_texture("resources/textures/ponies.jpg");
         
         // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
         // -------------------------------------------------------------------------------------------
@@ -125,6 +124,30 @@ fn main() {
     let mut curr_time;
     let mut time_diff;
     let mut counter = 0.0;
+
+    //projection matrix
+    let mut projection = Matrix4::perspective(
+        45.0, 
+        SCR_WIDTH as f32 / SCR_HEIGHT as f32, 
+        0.1, 
+        100.0
+    );
+
+    //matrix used to rotate the object
+    let mut transformation = Matrix4::identity();
+
+    //used to detect if mouse button is pressed
+    let mut mouse_pressed = false;
+
+    // mouse position
+    let mut last_x = 0.0;
+    let mut last_y = 0.0;
+
+    //used to mix textures
+    let mut delta_mix: f32 = 0.1;
+
+    let mut zoom = 45.0;
+
 
     // render loop
     // -----------
@@ -145,7 +168,20 @@ fn main() {
 
         // events
         // -----
-        process_events(&mut window, &events);
+        // process_events(&mut window, &events, &mut projection);
+
+        // window::processInput(&mut window, &mut delta_mix, &mut mouse_pressed);
+        window::process_events(
+            &events, 
+            &mut mouse_pressed, 
+            &mut last_x, 
+            &mut last_y, 
+            &mut transformation,
+            &mut projection,
+            &mut window,
+            &mut zoom,
+            &mut delta_mix
+        );
 
         // render
         // ------
@@ -163,17 +199,17 @@ fn main() {
             
             // create transformations
             let view = Matrix4::from_translation(0.0, 0.0, -5.);
-
-            let projection = Matrix4::perspective(45.0, SCR_WIDTH as f32 / SCR_HEIGHT as f32, 0.1, 100.0);
-            // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
             
             // render box
             gl::BindVertexArray(vao);
 
-            let angle = 2.0 as f32 * glfw.get_time() as f32;
-            let rotation = model * Matrix4::from_angle_y(angle);
+            // let angle = 1.0 as f32 * glfw.get_time() as f32;
+            if !mouse_pressed {
+                transformation = transformation * Matrix4::from_angle_y(0.02);
+            }
 
-            our_shader.set_mat4(c_str!("model"), &rotation);
+            our_shader.set_mat4(c_str!("model"), &model);
+            our_shader.set_mat4(c_str!("transformation"), &transformation);
             our_shader.set_mat4(c_str!("projection"), &projection);
             our_shader.set_mat4(c_str!("view"), &view);
 
@@ -191,19 +227,5 @@ fn main() {
     unsafe {
         gl::DeleteVertexArrays(1, &vao);
         gl::DeleteBuffers(1, &vbo);
-    }
-}
-
-fn process_events(window: &mut glfw::Window, events: &Receiver<(f64, glfw::WindowEvent)>) {
-    for (_, event) in glfw::flush_messages(events) {
-        match event {
-            glfw::WindowEvent::FramebufferSize(width, height) => {
-                // make sure the viewport matches the new window dimensions; note that width and
-                // height will be significantly larger than specified on retina displays.
-                unsafe { gl::Viewport(0, 0, width, height) }
-            }
-            glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => window.set_should_close(true),
-            _ => {}
-        }
     }
 }
