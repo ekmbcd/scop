@@ -1,6 +1,4 @@
 #![macro_use]
-#![allow(unused_macros)]
-
 
 /// Macro to get c strings from literals without runtime overhead
 /// Literal must not contain any interior nul bytes!

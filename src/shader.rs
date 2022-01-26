@@ -10,17 +10,15 @@ use gl;
 use gl::types::*;
 
 use crate::matrix::{Matrix4, Vector4};
-// use cgmath::prelude::*;
 
 pub struct Shader {
     pub id: u32,
 }
 
-/// NOTE: mixture of `shader_s.h` and `shader_m.h` (the latter just contains
-/// a few more setters for uniforms)
 impl Shader {
     pub fn new(vertex_path: &str, fragment_path: &str) -> Shader {
         let mut shader = Shader { id: 0 };
+        
         // 1. retrieve the vertex/fragment source code from filesystem
         let mut v_shader_file = File::open(vertex_path)
             .unwrap_or_else(|_| panic!("Failed to open {}", vertex_path));

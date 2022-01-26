@@ -1,12 +1,18 @@
 use std::{path::Path, io, fs::File};
 
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where P: AsRef<Path>, {
-        let file = File::open(filename)?;
-        Ok(io::BufRead::lines(io::BufReader::new(file)))
+fn read_lines(filename: &Path) -> io::Result<io::Lines<io::BufReader<File>>> {
+    let file = File::open(filename);
+    match file {
+        Err(_) => {
+            println!("{:?} not found.", filename);
+            std::process::exit(1)
+        }
+        Ok(_) => {}
+    }
+    Ok(io::BufRead::lines(io::BufReader::new(file.unwrap())))
 }
 
-pub unsafe fn load_model(path: &str) -> (Vec<f32>, Vec<u32>) {
+pub unsafe fn load_model(path: &String) -> (Vec<f32>, Vec<u32>) {
     let path = Path::new(path);
 
     let mut positions: Vec<f32> = Vec::new();
@@ -24,7 +30,7 @@ pub unsafe fn load_model(path: &str) -> (Vec<f32>, Vec<u32>) {
                                 positions.push(y);
                             }
                         });
-                // face line (at least 3 ints, may have '/' used for normals (we ignore them))
+                // face line (at least 3 integers, may have '/' used for normals (we ignore them))
                 } else if obj_string.starts_with("f ") {
                     let mut polygon = Vec::new();
                     obj_string.split(" ")
@@ -57,6 +63,7 @@ pub unsafe fn load_model(path: &str) -> (Vec<f32>, Vec<u32>) {
     (positions, indices)
 }
 
+// transform any polygon to triangles
 fn to_triangles(polygon: Vec<u32>) -> Vec<u32> {
     let mut out = Vec::<u32>::new();
 
@@ -73,6 +80,6 @@ fn to_triangles(polygon: Vec<u32>) -> Vec<u32> {
 
         len -= 1;
     }
-    // println!("{:?} - {:?}", polygon, out);
+
     out
 }

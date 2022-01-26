@@ -37,6 +37,7 @@ pub fn create_window(width: u32, height: u32) -> (
         ).expect("Failed to create GLFW window");
 
     window.make_current();
+    // enable window to catch events
     window.set_key_polling(true);
     window.set_framebuffer_size_polling(true);
     window.set_cursor_pos_polling(true);
@@ -78,10 +79,12 @@ pub fn process_events(
                 );
             }
 
+            // resize window
             glfw::WindowEvent::FramebufferSize(width, height) => {
                 // make sure the viewport matches the new window dimensions;
                 unsafe { 
                     gl::Viewport(0, 0, width, height);
+                    // update projection matrix to keep aspect ratio
                     *projection = Matrix4::perspective(
                         *zoom, 
                         width as f32 / height as f32, 
@@ -100,7 +103,6 @@ pub fn process_events(
             }
 
             glfw::WindowEvent::Key(Key::Space, _, Action::Press, _) => {
-								println!("press space");
                 *delta_mix = - *delta_mix;
             }
 
@@ -111,11 +113,9 @@ pub fn process_events(
             glfw::WindowEvent::CursorPos(xpos, ypos) => {
                 let (xpos, ypos) = (xpos as f32, ypos as f32);
                 if *mouse_pressed {
-                    println!("MOUVO MOUSE");
     
                     let xoffset = xpos - *last_x;
                     let yoffset = *last_y - ypos; // reversed since y-coordinates go from bottom to top
-    
                     
                     *transformation = *transformation * Matrix4::from_angle_x(yoffset * 0.01);
                     *transformation = *transformation * Matrix4::from_angle_y(- xoffset * 0.01);

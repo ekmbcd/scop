@@ -15,14 +15,14 @@ pub unsafe fn load_texture(path: &str) -> u32 {
 		.expect("Texture failed to load");
 
 	// flip image vertically
-  let img = img.flipv();
+    let img = img.flipv();
 	
 	// get image format
 	let format = match img {
-			ImageLuma8(_) => gl::RED,
-			ImageLumaA8(_) => gl::RG,
-			ImageRgb8(_) => gl::RGB,
-			ImageRgba8(_) => gl::RGBA,
+        ImageLuma8(_) => gl::RED,
+        ImageLumaA8(_) => gl::RG,
+        ImageRgb8(_) => gl::RGB,
+        ImageRgba8(_) => gl::RGBA,
 	};
 
 	let data = img.raw_pixels();

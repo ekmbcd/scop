@@ -10,24 +10,16 @@ use std::os::raw::c_void;
 use std::ffi::CStr;
 
 mod macros;
-mod math;
-
-mod mesh;
 mod model;
 mod parse_obj;
+mod texture;
+mod window;
 
 mod shader;
 use shader::Shader;
 
-mod texture;
-
-mod window;
-
 mod matrix;
-use matrix::{Matrix4, Vector4};
-// use cgmath::{prelude::*, Deg};
-// use cgmath;
-
+use matrix::Matrix4;
 
 // settings
 const SCR_WIDTH: u32 = 800;
@@ -35,15 +27,21 @@ const SCR_HEIGHT: u32 = 600;
 
 // const MODEL_PATH: &str = "resources/objects/redcube/cube.obj";
 // const MODEL_PATH: &str = "resources/objects/redcube/cube2.obj";
-const MODEL_PATH: &str = "resources/objects/statue/statue.obj";
-// const MODEL_PATH: &str = "resources/objects/42/42.obj";
+// const MODEL_PATH: &str = "resources/objects/statue/statue.obj";
+const MODEL_PATH: &str = "resources/objects/42/42.obj";
 // const MODEL_PATH: &str = "resources/objects/teapot/teapot.obj";
 
 fn main() {
 
+    let path;
+    if let Some(argument) = std::env::args().nth(1) {
+        path = argument;
+    } else {
+        path = String::from(MODEL_PATH);
+    }
+
     let (mut glfw, mut window, events) = 
         window::create_window(SCR_WIDTH, SCR_HEIGHT);
-    
 
     let (our_shader, vbo, vao, texture, indices, model) = unsafe {
         // configure global opengl state
@@ -56,12 +54,9 @@ fn main() {
             "src/shaders/shader.vs",
             "src/shaders/shader.fs");
 
-        let (vertices, indices) = parse_obj::load_model(MODEL_PATH);
-        // println!("{:?}", ourModel);
+        let (vertices, indices) = parse_obj::load_model(&path);
             
         let model = model::generate_model_matrix(&vertices);
-
-        // println!("MODEL {:?}", model);
 
         let (mut vbo, mut vao, mut ebo) = (0, 0, 0);
         // vao: vertex array object
@@ -101,10 +96,6 @@ fn main() {
             ptr::null()
         );
         gl::EnableVertexAttribArray(0);
-
-        // texture coord attribute
-        // gl::VertexAttribPointer(1, 2, gl::FLOAT, gl::FALSE, stride, (3 * mem::size_of::<GLfloat>()) as *const c_void);
-        // gl::EnableVertexAttribArray(1);
         
         let texture = texture::load_texture("resources/textures/ponies.jpg");
         
@@ -113,6 +104,7 @@ fn main() {
         our_shader.use_program();
         our_shader.set_int(c_str!("texture1"), 0);
 
+        // enable face culling to increase performances
         gl::Enable(gl::CULL_FACE);
         gl::CullFace(gl::BACK);  
 
@@ -122,7 +114,6 @@ fn main() {
     // needed for fps conter
     let mut prev_time = 0.0;
     let mut curr_time;
-    let mut time_diff;
     let mut counter = 0.0;
 
     //projection matrix
@@ -145,11 +136,10 @@ fn main() {
 
     //used to mix textures
     let mut delta_mix: f32 = 0.01;
+    let mut texture_mix = 1.0;
 
+    // used as fov (in degrees)
     let mut zoom = 45.0;
-
-		let mut texture_mix = 1.0;
-
 
     // render loop
     // -----------
@@ -157,7 +147,7 @@ fn main() {
 
         // fps counter
         curr_time = glfw.get_time();
-        time_diff = curr_time - prev_time;
+        let time_diff = curr_time - prev_time;
         counter += 1.0;
         if time_diff >= 1.0 {
             let fps = (1.0 / time_diff) * counter;
@@ -168,19 +158,17 @@ fn main() {
             counter = 0.0;
         }
 
-				texture_mix += delta_mix;
-				if texture_mix > 1.0 {
-					texture_mix = 1.0;
-				}
-				else if texture_mix < 0.0 {
-					texture_mix = 0.0;
-				}
+        // smoothly switch textures
+        texture_mix += delta_mix;
+        if texture_mix > 1.0 {
+            texture_mix = 1.0;
+        }
+        else if texture_mix < 0.0 {
+            texture_mix = 0.0;
+        }
 
         // events
         // -----
-        // process_events(&mut window, &events, &mut projection);
-
-        // window::processInput(&mut window, &mut delta_mix, &mut mouse_pressed);
         window::process_events(
             &events, 
             &mut mouse_pressed, 
@@ -213,18 +201,25 @@ fn main() {
             // render box
             gl::BindVertexArray(vao);
 
-            // let angle = 1.0 as f32 * glfw.get_time() as f32;
+            // only rotate when mouse button is not pressed
             if !mouse_pressed {
                 transformation = transformation * Matrix4::from_angle_y(0.02);
             }
 
+            // set uniforms for shaders
             our_shader.set_mat4(c_str!("model"), &model);
             our_shader.set_mat4(c_str!("transformation"), &transformation);
             our_shader.set_mat4(c_str!("projection"), &projection);
             our_shader.set_mat4(c_str!("view"), &view);
-						our_shader.set_float(c_str!("textureMix"), texture_mix);
+			our_shader.set_float(c_str!("textureMix"), texture_mix);
 
-            gl::DrawElements(gl::TRIANGLES, indices.len() as i32, gl::UNSIGNED_INT, ptr::null());
+            // draw drame
+            gl::DrawElements(
+                gl::TRIANGLES, 
+                indices.len() as i32, 
+                gl::UNSIGNED_INT, 
+                ptr::null()
+            );
         }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

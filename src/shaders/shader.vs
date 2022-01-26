@@ -11,7 +11,9 @@ uniform mat4 transformation;
 
 void main()
 {
+	// normalized model
 	vec4 modelView = model * vec4(aPos, 1.0);
-	gl_Position = projection * view * transformation * modelView ;
+	// apply texture based on model z and y
 	TexCoord = vec2((modelView.z / 2.0 + 0.5), (modelView.y / 2.0 + 0.5));
+	gl_Position = projection * view * transformation * modelView ;
 }
