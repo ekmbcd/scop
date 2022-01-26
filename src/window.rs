@@ -100,6 +100,7 @@ pub fn process_events(
             }
 
             glfw::WindowEvent::Key(Key::Space, _, Action::Press, _) => {
+								println!("press space");
                 *delta_mix = - *delta_mix;
             }
 

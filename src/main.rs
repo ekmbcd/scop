@@ -35,8 +35,8 @@ const SCR_HEIGHT: u32 = 600;
 
 // const MODEL_PATH: &str = "resources/objects/redcube/cube.obj";
 // const MODEL_PATH: &str = "resources/objects/redcube/cube2.obj";
-// const MODEL_PATH: &str = "resources/objects/statue/statue.obj";
-const MODEL_PATH: &str = "resources/objects/42/42.obj";
+const MODEL_PATH: &str = "resources/objects/statue/statue.obj";
+// const MODEL_PATH: &str = "resources/objects/42/42.obj";
 // const MODEL_PATH: &str = "resources/objects/teapot/teapot.obj";
 
 fn main() {
@@ -144,9 +144,11 @@ fn main() {
     let mut last_y = 0.0;
 
     //used to mix textures
-    let mut delta_mix: f32 = 0.1;
+    let mut delta_mix: f32 = 0.01;
 
     let mut zoom = 45.0;
+
+		let mut texture_mix = 1.0;
 
 
     // render loop
@@ -165,6 +167,14 @@ fn main() {
             prev_time = curr_time;
             counter = 0.0;
         }
+
+				texture_mix += delta_mix;
+				if texture_mix > 1.0 {
+					texture_mix = 1.0;
+				}
+				else if texture_mix < 0.0 {
+					texture_mix = 0.0;
+				}
 
         // events
         // -----
@@ -212,6 +222,7 @@ fn main() {
             our_shader.set_mat4(c_str!("transformation"), &transformation);
             our_shader.set_mat4(c_str!("projection"), &projection);
             our_shader.set_mat4(c_str!("view"), &view);
+						our_shader.set_float(c_str!("textureMix"), texture_mix);
 
             gl::DrawElements(gl::TRIANGLES, indices.len() as i32, gl::UNSIGNED_INT, ptr::null());
         }
