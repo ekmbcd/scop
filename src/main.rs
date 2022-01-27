@@ -43,6 +43,9 @@ fn main() {
     let (mut glfw, mut window, events) = 
         window::create_window(SCR_WIDTH, SCR_HEIGHT);
 
+    // lock fps to 60
+    glfw.set_swap_interval(glfw::SwapInterval::Adaptive);
+
     let (our_shader, vbo, vao, texture, indices, model) = unsafe {
         // configure global opengl state
         // -----------------------------
