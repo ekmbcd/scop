@@ -8,6 +8,7 @@ use std::ptr;
 use std::mem;
 use std::os::raw::c_void;
 use std::ffi::CStr;
+use std::fs::metadata;
 
 mod macros;
 mod model;
@@ -38,6 +39,21 @@ fn main() {
         path = argument;
     } else {
         path = String::from(MODEL_PATH);
+    }
+
+    let md = metadata(&path);
+    match md {
+        Err(_) => {
+            println!("{:?} not found.", path);
+            std::process::exit(1)
+        }
+
+        Ok(res) => {
+            if res.is_dir() {
+                println!("{:?} is a directory.", path);
+                std::process::exit(1)
+            }
+        }
     }
 
     let (mut glfw, mut window, events) = 

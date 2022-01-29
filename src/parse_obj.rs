@@ -2,14 +2,7 @@ use std::{path::Path, io, fs::File};
 
 fn read_lines(filename: &Path) -> io::Result<io::Lines<io::BufReader<File>>> {
     let file = File::open(filename);
-    match file {
-        Err(_) => {
-            println!("{:?} not found.", filename);
-            std::process::exit(1)
-        }
-        Ok(_) => {}
-    }
-    Ok(io::BufRead::lines(io::BufReader::new(file.unwrap())))
+    Ok(io::BufRead::lines(io::BufReader::new(file.expect("Not a valid file"))))
 }
 
 pub unsafe fn load_model(path: &String) -> (Vec<f32>, Vec<u32>) {
@@ -51,10 +44,11 @@ pub unsafe fn load_model(path: &String) -> (Vec<f32>, Vec<u32>) {
                     obj_string.starts_with("o ") ||
                     obj_string.starts_with("g ") ||
                     obj_string.is_empty() {
-                        // skip
+                        // skip line
                 } else {
-                    println!(">> ({})", obj_string);
+                    println!("Wrong obj line:\n>> {}", obj_string);
                     // panic!("Wrong obj file");
+                    std::process::exit(1)
                 }
 
             }
