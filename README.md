@@ -1,4 +1,4 @@
-# scop
+# 42 scop
 
 A program that renders 3d objects (from Wavefront .obj files), written in Rust using OpenGL API.
 
