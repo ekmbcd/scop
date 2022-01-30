@@ -1,4 +1,5 @@
 extern crate glfw;
+extern crate gl;
 use std::sync::mpsc::Receiver;
 
 use glfw::{Key, Action, MouseButton};
@@ -172,5 +173,17 @@ pub fn process_input(window: &mut glfw::Window, view: &mut Matrix4) {
 
     if window.get_key(Key::F) == Action::Press {
         *view = *view * Matrix4::from_translation(0.0, 0.1, 0.0);
+    }
+
+    if window.get_key(Key::T) == Action::Press {
+        unsafe {
+            gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+        }
+    }
+
+    if window.get_key(Key::G) == Action::Press {
+        unsafe {
+            gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
+        }
     }
 }
