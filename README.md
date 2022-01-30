@@ -2,6 +2,8 @@
 
 A program that renders 3d objects (from Wavefront .obj files), written in Rust using OpenGL API.
 
+![screenshot](resources/screenshot.png)
+
 ## Requirements
 
 ### Rust compiler + cargo 
