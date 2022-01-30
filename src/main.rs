@@ -146,8 +146,13 @@ fn main() {
     //matrix used to rotate the object
     let mut transformation = Matrix4::identity();
 
-    //used to detect if mouse button is pressed
-    let mut mouse_pressed = false;
+                
+    // camera matrix
+    let mut view = Matrix4::from_translation(0.0, 0.0, -5.);
+
+    //used to detect if mouse buttons are pressed
+    let mut left_mouse_pressed = false;
+    let mut right_mouse_pressed = false;
 
     // mouse position
     let mut last_x = 0.0;
@@ -186,18 +191,23 @@ fn main() {
             texture_mix = 0.0;
         }
 
+        // move camera
+        window::process_input(&mut window, &mut view);
+
         // events
         // -----
         window::process_events(
             &events, 
-            &mut mouse_pressed, 
+            &mut left_mouse_pressed, 
             &mut last_x, 
             &mut last_y, 
             &mut transformation,
             &mut projection,
             &mut window,
             &mut zoom,
-            &mut delta_mix
+            &mut delta_mix,
+            &mut view,
+            &mut right_mouse_pressed, 
         );
 
         // render
@@ -214,14 +224,11 @@ fn main() {
             // activate shader
             // our_shader.use_program();
             
-            // create transformations
-            let view = Matrix4::from_translation(0.0, 0.0, -5.);
-            
             // render box
             gl::BindVertexArray(vao);
 
             // only rotate when mouse button is not pressed
-            if !mouse_pressed {
+            if !left_mouse_pressed {
                 transformation = transformation * Matrix4::from_angle_y(0.02);
             }
 
