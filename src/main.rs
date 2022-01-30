@@ -117,6 +117,7 @@ fn main() {
         gl::EnableVertexAttribArray(0);
         
         let texture = texture::load_texture("resources/textures/ponies.jpg");
+        // let texture = texture::load_texture("resources/textures/galaxy.jpg");
         
         // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
         // -------------------------------------------------------------------------------------------

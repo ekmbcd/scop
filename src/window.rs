@@ -178,12 +178,15 @@ pub fn process_input(window: &mut glfw::Window, view: &mut Matrix4) {
     if window.get_key(Key::T) == Action::Press {
         unsafe {
             gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+            gl::Disable(gl::CULL_FACE);
         }
     }
 
     if window.get_key(Key::G) == Action::Press {
         unsafe {
             gl::PolygonMode(gl::FRONT_AND_BACK, gl::FILL);
+            gl::Enable(gl::CULL_FACE);
+            gl::CullFace(gl::BACK); 
         }
     }
 }

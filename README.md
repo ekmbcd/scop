@@ -37,3 +37,4 @@ make
 - ESC : exit
 - LEFT-MOUSE + DRAG : rotate the model
 - RIGHT-MOUSE + DRAG : rotate the camera
+- T / G : toggle wireframe mode on / off
